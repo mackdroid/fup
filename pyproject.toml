@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "fup"
+version = "0.1.0"
+description = "Simple file upload service, inspired by 0x0.st"
+authors = ["mackdroid <68280146+mackdroid@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Flask = "^2.2.2"
+gunicorn = "^20.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

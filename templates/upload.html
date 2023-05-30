@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    html {
+        max-width: 70ch;
+        padding: 3em 1em;
+        margin: auto;
+        line-height: 1.75;
+        font-size: 1.45em;
+        color: #9d9cd8;
+        background-color:#c7c4e7;
+        font-family:'JetBrains Mono',-apple-system,BlinkMacSystemFont,segoe ui,Roboto,Oxygen,Ubuntu,Cantarell,open sans,helvetica neue,sans-serif;
+    }
+
+    #drag-drop-box {
+        width: 300px;
+        height: 200px;
+        border-radius: 19px;
+        border: 2px dashed #9d9cd8;
+        align-items: center;
+        text-align: center;
+        background-color:#ffffff;
+        padding: 40px;
+        cursor: pointer;
+        margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="drag-drop-box">Upload.</div>
+
+  <form id="upload-form" enctype="multipart/form-data" method="POST">
+    <input type="file" id="file-input" name="file" style="display: none;">
+  </form>
+
+  <script>
+    var dragDropBox = document.getElementById('drag-drop-box');
+    var fileInput = document.getElementById('file-input');
+    var uploadForm = document.getElementById('upload-form');
+
+    dragDropBox.addEventListener('click', function() {
+      fileInput.click();
+    });
+
+    dragDropBox.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragDropBox.style.border = '2px solid #000';
+    });
+
+    dragDropBox.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragDropBox.style.border = '2px dashed #ccc';
+    });
+
+    fileInput.addEventListener('change', function() {
+      uploadForm.submit();
+    });
+
+    dragDropBox.addEventListener('drop', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragDropBox.style.border = '2px dashed #ccc';
+
+      var file = e.dataTransfer.files[0];
+      fileInput.files = e.dataTransfer.files;
+      uploadForm.submit();
+    });
+  </script>
+</body>
+</html>
