@@ -33,9 +33,13 @@ def calculate_sha256(file_path):
 
 def on_exit():
     try:
-        with open(datastore_path) as file:
-            file.truncate(0)
-            json.dump(ds,file, "w")
+        if os.path.exists(datastore_path):
+            with open(datastore_path) as file:
+                file.truncate(0)
+                json.dump(ds,file, "w")
+        else:
+            with open(datastore_path, "x") as file:
+                json.dump(ds,file)
     except Exception as e:
         print("Error: Failed to save JSON data, datastore wont be saved.")
         print(str(e))
