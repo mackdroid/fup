@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <style>
+            html {
+                max-width: 70ch;
+                padding: 6em 1em;
+                line-height: 1.75;
+                margin: auto;
+                background-color: #c7c4e7;
+                
+            }
+    
+            #url-box {
+                width: 50%;
+                height: 20px;
+                border-radius: 19px;
+                box-shadow: inset ;
+                border: 2px dashed #9d9cd8;
+                align-items: center;
+                text-align: center;
+                background-color:#ffffff;
+                padding: 10px;
+                cursor: pointer;
+                margin: auto;
+            }
+                                      
+            #url {
+                width: 100%;
+                height: 90%;
+                font-size: 1.3em;
+                text-align: center;
+                color: #c7c4e7;
+                cursor: pointer;
+                background: transparent;
+                border: 0px none;
+                font-family: 'JetBrains Mono', -apple-system, BlinkMacSystemFont, segoe ui, Roboto, Oxygen, Ubuntu, Cantarell, open sans, helvetica neue, sans-serif;
+            }
+                                      
+            #copied-message {
+                position: static;
+                top: 50%;
+                left: 50%;
+                text-align: center;
+                transform: translate(0%, -69%);
+                font-size: 1.6em;
+                color: #9d9cd8;
+                text-shadow: -1px -1px 0 #48485a, 1px -1px 0 #48485a, -1px 1px 0 #48485a, 1px 1px 0 #48485a;       
+                display: none;
+                font-family: 'JetBrains Mono', -apple-system, BlinkMacSystemFont, segoe ui, Roboto, Oxygen, Ubuntu, Cantarell, open sans, helvetica neue, sans-serif;
+
+            }
+        </style>
+        <script>
+            function copyToClipboard() {
+                var urlInput = document.getElementById("url");
+                urlInput.select();
+                urlInput.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(urlInput.value);
+                
+                var urlBox = document.getElementById("url");
+                var copiedMessage = document.getElementById("copied-message");
+                copiedMessage.style.display = "block";
+                urlBox.style.opacity = "44%";
+                setTimeout(function() {
+                    urlBox.style.opacity = "100%";
+                    copiedMessage.style.display = "none";
+                }, 1500);
+            }
+        </script>
+    </head>
+    <body>
+        <div id="url-box" onclick="copyToClipboard()">
+            <input type="text" id="url" value={{url}} readonly>
+            <div id="copied-message">Copied!</div>
+        </div>
+    </body>
+    </html>

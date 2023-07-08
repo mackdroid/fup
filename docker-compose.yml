@@ -1,0 +1,12 @@
+version: "3"
+services:
+  fupservice:
+    build: .
+    image: fup
+    ports:
+      - "8000:8000"
+    environment:
+      - HOSTNAME=localhost
+    volumes:
+      - ./upload_data:/app/upload_dat
+      - ./.store.json:/app/.store.json

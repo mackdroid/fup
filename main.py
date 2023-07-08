@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_from_directory
+from flask import Flask, request, render_template, send_from_directory 
 from hashlib import sha256
 from pathlib import Path
 from time import time
@@ -6,14 +6,22 @@ from lib.store import StoreHandler,ShaExistsError,TokenExistsError
 import atexit,json,os,random,string
 
 
-file_upload_path = "./upload_dat/"
-datastore_path = "./.store.json"
-host = "http://127.0.0.1:8000/"
-
+file_upload_path = "./upload_data/"
+datastore_path = file_upload_path + ".store.json"
 
 if os.path.exists(datastore_path): # load data store from store.json if exists
     with open(datastore_path, "r") as file:
-        ds = json.load(file)
+        try:
+            ds = json.load(file)
+        except json.decoder.JSONDecodeError:
+            print("Error: datastore seems corrupt, will be overwritten on write") 
+            ds = { "sha":[],
+            "ip":[],
+            "time":[],
+            "token":[],
+            "ext":[],
+            "origfname":[],
+    }
 else:
     ds = {  "sha":[],
             "ip":[],
@@ -23,6 +31,11 @@ else:
             "origfname":[],
     }
 store = StoreHandler(ds)
+
+if os.path.exists(file_upload_path):
+    pass
+else:
+    os.mkdir(file_upload_path)
 
 def calculate_sha256(file_path):
     sha_hash = sha256()
@@ -34,15 +47,39 @@ def calculate_sha256(file_path):
 def on_exit():
     try:
         if os.path.exists(datastore_path):
-            with open(datastore_path) as file:
-                file.truncate(0)
-                json.dump(ds,file, "w")
+            file = open(datastore_path)
+            file.truncate(0)
         else:
-            with open(datastore_path, "x") as file:
-                json.dump(ds,file)
+            file = open(datastore_path, "x")
+        json.dump(ds,file)
     except Exception as e:
         print("Error: Failed to save JSON data, datastore wont be saved.")
         print(str(e))
+
+def append_to_json_file():
+    if os.path.exists(datastore_path):
+        try:
+            with open(datastore_path, 'r') as file:
+                existing_data = json.load(file)
+        except json.JSONDecodeError:
+            with open(datastore_path, 'w') as file:
+                json.dump(ds, file, indent=4)
+        except:
+            print("Error: Failed to save JSON data, datastore wont be saved.")
+        else:
+            if isinstance(existing_data, list):
+                existing_data.append(ds)
+                updated_data = existing_data
+            else:
+                updated_data = [existing_data, ds]
+
+            with open(datastore_path, 'w') as file:
+                json.dump(updated_data, file, indent=4)
+
+    else:
+        with open(datastore_path, 'w') as file:
+            json.dump(ds, file, indent=4)
+
 
 app = Flask("fup")
 
@@ -61,7 +98,6 @@ def upload_file():
             ext =  ''.join(Path(file.filename).suffixes)
             spath = file_upload_path+token+ext
             file.save(spath)
-            os.rename(spath, spath)
             r = {  "sha":calculate_sha256(spath),
                     "ip":request.remote_addr,
                 "time":int(time()),
@@ -71,11 +107,14 @@ def upload_file():
         }
             store.add_entry(r)
             print(f'Info: File({file.filename}) uploaded successfully from {request.remote_addr}')
-            return host+r["token"]+r["ext"]
+            url = request.host_url+r["token"]+r["ext"]
+            return render_template('copy.html', url=url)
         except ShaExistsError:
+            os.remove(spath)
             print(f'Info: possible Sha collision or reupload of {file.filename}, Handling({request.remote_addr})')
             r = store.get_rows_by_key_value("sha",r["sha"])[0]
-            return host+r["token"]+r["ext"]
+            url = request.host_url +r["token"]+r["ext"]
+            return render_template('copy.html', url=url)
         except Exception as e:
             print("Error: "+ e )
     return render_template('upload.html')
